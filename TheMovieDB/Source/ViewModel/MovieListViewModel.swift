@@ -17,13 +17,13 @@ class MovieListViewModel {
 
     func getMovieList() {
         /// Can handle the pagination here by keeping the current page count
-        NetworkManager.shared.getListOfMovies(pageId: 1, language: "en-US") { movieList, error in
-
-            if error != nil {
-                print("Error while fetching movies")
-            }
-            if let movies = movieList?.results {
-                self.delgate?.movieListResult(movies: movies)
+        Task {
+            let result = await NetworkManager.shared.getListOfMovies(pageId: 1, language: "en-US")
+            switch result {
+            case .success(let movieList):
+                self.delgate?.movieListResult(movies: movieList.results)
+            case .failure(let error):
+                print(error.localizedDescription)
             }
         }
     }
