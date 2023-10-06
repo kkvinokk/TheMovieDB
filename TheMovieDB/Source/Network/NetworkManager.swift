@@ -17,7 +17,7 @@ class NetworkManager {
     private init() { }
 
     func getListOfMovies(pageId: Int, language: String,
-                         completion: @escaping (MovieList?, Error?) -> ()) {
+                         completion: @escaping (Result<MovieList, Error>) -> ()) {
         let apiUrl = APIURL(environment: .development)
         let apikey = apiUrl.apiKey()
         let movieBaseUrl = apiUrl.baseURL()
@@ -26,22 +26,22 @@ class NetworkManager {
         print("urlString:\(urlString)")
 
         guard let url = URL(string: urlString) else {
-            return completion(nil, NetworkError.invalidURL)
+            return completion(.failure(NetworkError.invalidURL))
         }
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
-                completion(nil, NetworkError.responseError)
+                completion(.failure(NetworkError.responseError))
                 print("fetching data error:\(error)")
             } else {
                 guard let data = data else { return }
 
                 do{
                     let movieList = try JSONDecoder().decode(MovieList.self, from: data)
-                    completion(movieList, nil)
+                    completion(.success(movieList))
                 } catch let jsonError {
                     print("Json error:\(jsonError)")
-                    completion(nil, NetworkError.responseError)
+                    completion(.failure(NetworkError.responseError))
                 }
             }
         }.resume()
