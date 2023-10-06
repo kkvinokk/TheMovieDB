@@ -17,8 +17,8 @@ class MovieListViewModel {
 
     func getMovieList() {
         /// Can handle the pagination here by keeping the current page count
-        NetworkManager.shared.getListOfMovies(pageId: 1, language: "en-US") { result in
-
+        Task {
+            let result = await NetworkManager.shared.getListOfMovies(pageId: 1, language: "en-US")
             switch result {
             case .success(let movieList):
                 self.delgate?.movieListResult(movies: movieList.results)
